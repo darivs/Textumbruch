@@ -1,40 +1,41 @@
-import org.assertj.core.api.Condition;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-import java.util.List;
+import java.util.Collection;
 
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
+@RunWith(Parameterized.class)
 public class TextSplitterTests {
-    private TextSplitter textSplitter = new TextSplitter();
 
-    private static final String LINE_SEPARATOR = System.lineSeparator();
-    private static final String TEXT_TO_BREAK = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static final int WIDTH = 6;
+    @Parameterized.Parameters(name = " {1} at {0}")
+    public static Collection<Object[]> data() {
+        return asList(new Object[][]{
+                {6, "123567", "123456" + System.lineSeparator() + "7"},
+                {3, "123456", "123" + System.lineSeparator() + "456"},
+                {6, "123456", "123456"}
+        });
+    }
 
-    @Test
-    public void splitter_inserts_linebreaks_and_as_much_as_needed() {
-        int expectedLinebreaks = 4;
+    private final TextSplitter textSplitter = new TextSplitter();
 
-        String breakedText = textSplitter.breakTextAfterWidth(TEXT_TO_BREAK, WIDTH);
+    private int width;
+    private String text;
+    private String expected;
 
-        assertThat(occurrencesOfLinebreaks(breakedText)).isEqualTo(expectedLinebreaks)
-                                                        .isGreaterThan(0);
+    public TextSplitterTests(int width, String text, String expected) {
+        this.width = width;
+        this.text = text;
+        this.expected = expected;
     }
 
     @Test
-    public void splitter_inserts_linebreaks_at_right_position() {
-        List<String> rows = asList(textSplitter.breakTextAfterWidth(TEXT_TO_BREAK, WIDTH).split(LINE_SEPARATOR));
+    public void split() {
+        String textWithLinebreaks = textSplitter.breakTextAfterWidth(text, width);
 
-        Condition<String> shorterThanSix = new Condition<>(row -> row.length() <= 6, "row length should be as wide as given width (6)");
-
-        assertThat(rows).are(shorterThanSix);
+        assertThat(textWithLinebreaks).isEqualTo(expected);
     }
 
-    private int occurrencesOfLinebreaks(String breakedText) {
-        int numberOfActualLineBreaks = (breakedText.split(LINE_SEPARATOR, -1).length) - 1;
-
-        return numberOfActualLineBreaks;
-    }
 }

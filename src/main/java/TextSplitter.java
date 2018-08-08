@@ -1,14 +1,18 @@
-public class TextSplitter {
-    private static final String LINE_SEPARATOR = System.lineSeparator();
+class TextSplitter {
 
-    public String breakTextAfterWidth(String textToBreak, int width) {
-        int numberOfNeededLineBreaks = Math.round(textToBreak.length() / width);
-        StringBuilder breakedText = new StringBuilder(textToBreak);
+    String breakTextAfterWidth(String textToBreak, int width) {
+        StringBuilder breakedText = new StringBuilder();
 
-        for (int i = 1; i <= numberOfNeededLineBreaks; i++) {
-            breakedText.insert((width * i) + i - 1, LINE_SEPARATOR);
+        char[] chars = textToBreak.toCharArray();
+        for (int i = 1; i < chars.length + 1; i++) {
+            breakedText.append(chars[i - 1]);
+
+            if (i % width == 0 && i != chars.length) {
+                breakedText.append(System.lineSeparator());
+            }
         }
 
         return breakedText.toString();
     }
+
 }
